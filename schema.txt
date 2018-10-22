@@ -1,0 +1,12 @@
+BarBeerDrinkersPlus Schema
+Lawrence Yong, Kevin Toft
+
+Bars [name, license, city, state, phone addr]
+Items [name manu]
+Drinkers [name, city, state, phone, addr]
+Frequents [drinker, bar]
+like [drinker, item]
+Sells [bar, item, price]
+Hours [bar, day, open, close]
+Transaction[TransID, time, day, bar, drinker, tip, total]
+BillContains[TransID, item]
