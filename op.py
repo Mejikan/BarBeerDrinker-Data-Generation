@@ -7,6 +7,7 @@ f_drinkers = "table/drinkers.csv"
 f_bars = "table/bars.csv"
 f_frequents = "table/frequents.csv"
 f_sells = "table/sells.csv"
+f_likes = "table/likes.csv"
 
 def write_drinkers_table():
 	drinkers = gen.drinkers(gen.max_drinkers)
@@ -86,8 +87,29 @@ def read_sells_table():
 	sells = csv.parse_file(f_sells, 3000)
 	for sell in sells:
 		result = gen.Sell( sell["bar"], sell["item"], sell["price"] )
+		results.append(result)
+	return results
+
+def write_likes_table():
+	drinkers = read_drinkers_table()
+	frequents = read_frequents_table()
+	sells = read_sells_table()
+
+	likes = gen.likes(drinkers, frequents, sells, 3000)
+	f = open(f_likes, "w")
+	try:
+		f.write('drinker,item\n')
+		for like in likes:
+			f.write(like.csv() + "\n")
+	finally:
+		f.close()
+
+def read_likes_table():
+	results = []
+	likes = csv.parse_file(f_likes, 10000)
+	for like in likes:
+		result = gen.Like( like["drinker"], like["item"] )
 		print(result.csv())
 		results.append(result)
 	return results
 
-write_sells_table()

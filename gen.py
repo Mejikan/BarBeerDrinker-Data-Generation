@@ -357,20 +357,58 @@ class Like:
 	def csv(self):
 		return '"{0}","{1}"'.format(self.drinker, self.item)
 
-def likes(drinkers, items, count):
+def likes(drinkers, frequents, sells, count):
 	results = []
-	s = set()
+
+	# for each frequented bar, the drinker should like at least one item sold from there
+	liked = {}
+
+	# create table (drinker, frequented bars[])
+	freq_dict_by_drinker = {}
+	for freq in frequents:
+		if freq.drinker not in freq_dict_by_drinker:
+			freq_dict_by_drinker[freq.drinker] = []
+		freq_dict_by_drinker[freq.drinker].append(freq.bar)
+	
+	for drinker in drinkers:
+		liked[drinker.name] = set()
+
+		if drinker.name in freq_dict_by_drinker:
+			freq_bars = freq_dict_by_drinker[drinker.name]
+			for freq_bar in freq_bars:
+				item = None
+				# search in sells starting at a random point
+				# look for an item sold by the bar
+				start_i = random.randrange(0, len(sells))
+				for i in range(start_i, len(sells)):
+					if freq_bar == sells[i].bar:
+						item = sells[i].item
+						break
+				if not item:
+					for i in range(0, start_i):
+						if freq_bar == sells[i].bar:
+							item = sells[i].item
+							break
+				if item:
+					liked[drinker.name].add(item)
+				else:
+					raise Exception("unexpected")
+
+	# randomly pick the rest
 	i = 0
 	while True:
 		if i >= count:
 			break
 		drinker = rand_pick(drinkers)
-		item = rand_pick(items)
-		result = (drinker, item.item)
-		s.add(result)
-		i += 1
-	for r in s:
-		results.append(Like(r[0], r[1]))
+		item = rand_pick(sells)
+
+		if item.item not in liked[drinker.name]:
+			liked[drinker.name].add(item.item)
+			i += 1
+	
+	for drinker_name, items_liked in liked.items():
+		for item in items_liked:
+			results.append( Like(drinker_name, item) )
 	return results
 
 # test
