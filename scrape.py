@@ -29,7 +29,7 @@ def og_filtr(f):
 		
 		elif "dollar-sign" in line:
 			idx = index_of_end("$</sup>", line)
-			prices.append( float(int(line[idx])) + 0.99 )
+			prices.append( float(int(line[idx])) + 0.95 )
 	
 	for n in range(len(names)):
 		og.append((names[n], prices[n]))
@@ -38,6 +38,9 @@ def og_down():
 	url = "https://www.olivegarden.com/menu-listing/dinner"
 	httpd.download(url, og_filtr, False)
 
-	print(og, len(og))
+	f = open("data/items2.csv", "w")
+	for item in og:
+		line = '"{0}",{1},{2}\n'.format(item[0], item[1], item[1])
+		f.write(line)
 
 og_down()

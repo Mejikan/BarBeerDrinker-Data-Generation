@@ -52,8 +52,12 @@ def parse_file(file_path, max_rec, filtr=None):
 				# 	break
 			# if (random.random() < rand_thresh):
 			# 	fail = True
-			if filtr and filtr(rec):
+			if filtr:
+				if filtr(rec):
+					recs.append(rec)
+			else:
 				recs.append(rec)
+
 	return recs
 
 def retreive(file_path, row): # row =1 will retreive the first row below the column header row

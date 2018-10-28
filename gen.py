@@ -56,6 +56,12 @@ class Time:
 	def int_rep(self):
 		return int(self.int_str())
 
+def time_from_int_str(int_str):
+	hour = int(int_str[0:2])
+	minute = int(int_str[2:4])
+	sec = int(int_str[4:6])
+	return Time(hour, minute, sec)
+
 class Drinker:
 	def __init__(self, name="", city="", state="", phone="", addr=""):
 		self.name = name
@@ -237,16 +243,9 @@ def bars(count):
 # 	print(bar.csv())
 
 def filtr_item(csv_rec):
-	if (random.random() < 0.25):
-		return False
 	for k, v in csv_rec.items():
 		if isinstance(v, str) and len(v) > 45:
 			return False
-		if k == "last_appeared":
-			if not v:
-				return False
-			if int(v) < 1985 or int(v) > 2018:
-				return False
 	return True
 
 def filtr_beer(csv_rec):
@@ -258,25 +257,17 @@ def filtr_beer(csv_rec):
 				return False
 			if k == "name" and not re.match("^['\w\s]*$", v):
 				return False
-			if k == "highest_price" or k == "lowest_price":
-				if not v:
-					return False
-				if float(v) <= 0:
-					return False
 	return True
 
+max_items_stuff = 214
 def items_raw(count):
 	results = []
 	items_count = math.floor(count*0.5)
+	if (items_count > max_items_stuff):
+		items_count = max_items_stuff
 	beers_count = count - items_count
 	items = csv.parse_file(fpath_items, items_count, filtr_item)
 	for item in items:
-		del item["id"]
-		del item["description"]
-		del item["menus_appeared"]
-		del item["times_appeared"]
-		del item["first_appeared"]
-		del item["last_appeared"]
 		item["type"] = "food"
 		results.append(item)
 
@@ -291,6 +282,9 @@ def items_raw(count):
 		beer["manu"] = csv.retreive(fpath_brew, int(beer["brewery_id"]))["name"]
 		del beer["brewery_id"]
 		beer["type"] = "beer"
+		price = float(random.randint(1, 12)) + round(random.random(), 2)
+		beer["highest_price"] = price
+		beer["lowest_price"] = price
 		results.append(beer)
 	return results
 
@@ -415,14 +409,16 @@ def sells(bars, raw_items, min_count):
 			s.add(result)
 
 			price = 0
-			if raw_item["type"] == "beer":
-				low_price = 0.75
-				high_price = 18.00
-				price = round(random.uniform(low_price, high_price), 2)
-			else:
-				low_price = float(raw_item["lowest_price"])
-				high_price = float(raw_item["highest_price"])
-				price = round(random.uniform(low_price, high_price), 2)
+			low_price = float(raw_item["lowest_price"])
+			price = low_price
+			# if raw_item["type"] == "beer":
+			# 	low_price = float(raw_item["lowest_price"])
+			# 	high_price = float(raw_item["highest_price"])
+			# 	price = round(random.uniform(low_price, high_price), 2)
+			# else:
+			# 	low_price = float(raw_item["lowest_price"])
+			# 	high_price = float(raw_item["highest_price"])
+			# 	price = round(random.uniform(low_price, high_price), 2)
 
 			results.append( Sell(bar.name, raw_item["name"], price) )
 		i += 1
@@ -506,9 +502,9 @@ def transactions_drinker(drinker, bars, frequents, likes, sells, count_start, co
 		if frequent.drinker == drinker:
 			d_bars.add(frequent.bar)
 	
-	# everyone should visit at least 4 bars
-	if (len(d_bars) < 4):
-		add_bars = random.randint(4, 10)
+	# everyone should visit at least 2 bars
+	if (len(d_bars) < 2):
+		add_bars = random.randint(2, 8)
 		n = 0
 		while n < add_bars:
 			bar = rand_pick(bars)
