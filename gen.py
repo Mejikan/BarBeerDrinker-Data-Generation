@@ -353,7 +353,7 @@ def likes(drinkers, items, count):
 			break
 		drinker = rand_pick(drinkers)
 		item = rand_pick(items)
-		result = (drinker.name, item.name)
+		result = (drinker, item.item)
 		s.add(result)
 		i += 1
 	for r in s:
@@ -374,14 +374,21 @@ class Sell:
 	def csv(self):
 		return '"{0}", "{1}", "{2}"'.format(self.bar, self.item, self.price)
 
-def sells(bars, raw_items, count):
+def sells(bars, raw_items, min_count):
 	results = []
 	s = set()
 	i = 0
-	while True:
-		if i >= count:
-			break
-		bar = rand_pick(bars)
+	bar_g_i = 0 # will guraurantee each bar has at least one item
+	while True: 
+		bar = None
+		if i >= min_count:
+			if bar_g_i >= len(bars):
+				break
+			else:
+				bar = bars[bar_g_i]
+				bar_g_i += 1
+		else:
+			bar = rand_pick(bars)
 		raw_item = rand_pick(raw_items)
 
 		result = (bar.name, raw_item["name"])
@@ -408,45 +415,45 @@ def sells(bars, raw_items, count):
 # 	print(sell.csv())
 
 # gurauntees that a bar frequented by a drinker has at least 1 item that drinker likes
-def sells_plus(bars, raw_items, count, frequents, likes):
-	init_sells = sells(bars, raw_items, count)
+# def sells_plus(bars, raw_items, count, frequents, likes):
+# 	init_sells = sells(bars, raw_items, count)
 
-	for freq in frequents:
-		drinker = freq.drinker
-		bar = freq.bar
+# 	for freq in frequents:
+# 		drinker = freq.drinker
+# 		bar = freq.bar
 
-		# randomly pick items that the drinker likes (if any)
-		liked_items = set()
-		for like in likes:
-			if like.drinker == drinker:
-				if len(liked_items) < 1 or random.random() < 0.4:
-					liked_items.add(like.item)
+# 		# randomly pick items that the drinker likes (if any)
+# 		liked_items = set()
+# 		for like in likes:
+# 			if like.drinker == drinker:
+# 				if len(liked_items) < 1 or random.random() < 0.4:
+# 					liked_items.add(like.item)
 		
-		if (len(liked_items) < 1): continue
+# 		if (len(liked_items) < 1): continue
 
-		# find all items sold by the bar
-		items_sold = set()
-		for sell in init_sells:
-			if sell.bar == bar:
-				items_sold.add(sell.item)
+# 		# find all items sold by the bar
+# 		items_sold = set()
+# 		for sell in init_sells:
+# 			if sell.bar == bar:
+# 				items_sold.add(sell.item)
 
-		for item in liked_items:
-			if item not in items_sold:
-				# search for item in raw_items and generate a price
-				price = 0
-				for raw_item in raw_items:
-					if raw_item["name"] == item:
-						if raw_item["type"] == "beer":
-							low_price = 0.75
-							high_price = 18.00
-							price = round(random.uniform(low_price, high_price), 2)
-						else:
-							low_price = float(raw_item["lowest_price"])
-							high_price = float(raw_item["highest_price"])
-							price = round(random.uniform(low_price, high_price), 2)
-						break
-				init_sells.append( Sell(bar, item, price) )
-	return init_sells
+# 		for item in liked_items:
+# 			if item not in items_sold:
+# 				# search for item in raw_items and generate a price
+# 				price = 0
+# 				for raw_item in raw_items:
+# 					if raw_item["name"] == item:
+# 						if raw_item["type"] == "beer":
+# 							low_price = 0.75
+# 							high_price = 18.00
+# 							price = round(random.uniform(low_price, high_price), 2)
+# 						else:
+# 							low_price = float(raw_item["lowest_price"])
+# 							high_price = float(raw_item["highest_price"])
+# 							price = round(random.uniform(low_price, high_price), 2)
+# 						break
+# 				init_sells.append( Sell(bar, item, price) )
+# 	return init_sells
 
 # test
 # b = bars(100)
@@ -465,6 +472,10 @@ class Transaction:
 		self.drinker = drinker
 		self.tip = tip
 		self.total = total
+	
+	def csv(self):
+		return '"{0}", {1}, {2}, "{3}", "{4}", {5}, {6}'.format(
+			self.trans_id, self.day, self.time.int_str(), self.bar, self.drinker, self.tip, self.total)
 
 # creates transactions for a single drinker
 def transactions_drinker(drinker, bars, frequents, likes, sells, count_start, count):
@@ -473,7 +484,7 @@ def transactions_drinker(drinker, bars, frequents, likes, sells, count_start, co
 	# create a list of bars visited
 	d_bars = set()
 	for frequent in frequents:
-		if frequent.drinker == drinker.name:
+		if frequent.drinker == drinker:
 			d_bars.add(frequent.bar)
 	
 	# everyone should visit at least 4 bars
@@ -483,61 +494,62 @@ def transactions_drinker(drinker, bars, frequents, likes, sells, count_start, co
 		while n < add_bars:
 			bar = rand_pick(bars)
 			if bar not in d_bars:
-				d_bars.add(bar)
+				d_bars.add(bar.name)
 				n += 1
 	
 	# create a list of liked items
 	d_likes = set()
 	for like in likes:
-		if like.drinker == drinker.name:
+		if like.drinker == drinker:
 			d_likes.add(like.item)
 	
 	# create a dictionary of bar data
 	d_bars_dict = {}
+	d_bars_time_dict = {}
 	d_sells_dict = {}
 	for bar_name in d_bars:
-		for bar in bars:
+		for bar_i in range(len(bars)):
+			bar = bars[bar_i]
 			if bar.name == bar_name:
 				d_bars_dict[bar_name] = bar
+
+				# create a dictionary of bar times
+				for bar_time_day in range(1, 8):
+					for bar_time_hour in range(bar.open.hour, bar.closed.hour):
+						bar_time_t = (bar_time_day, bar_time_hour)
+						if bar_time_t not in d_bars_time_dict:
+							d_bars_time_dict[bar_time_t] = []
+						d_bars_time_dict[bar_time_t].append(bar_name)
 
 				# create a dictionary of sell data
 				for sell in sells:
 					if sell.bar == bar_name:
-						if d_sells_dict[bar_name]:
-							pass
-						else:
+						if bar_name not in d_sells_dict:
 							d_sells_dict[bar_name] = []
-						d_sells_dict[bar_name] = sell
-
+						d_sells_dict[bar_name].append(sell)
 				break
+			if bar_i == len(bars)-1:
+				print("not found: ", bar_name)
 
 	time_set = set()
 
 	j = 0
 	while (j < count):
-		# pick a random day
-		day = random.randint(1, 7)
-		hour = random.randint(0, 23)
-		time_t = (day, hour)
-		time_act = Time(hour, random.randint(5, 55), random.randint(0, 59))
+		# pick a random day+time from available bar times
+		time_t = random.choice(list(d_bars_time_dict))
+		time_act = Time(time_t[1], random.randint(5, 55), random.randint(0, 59))
 		if time_t in time_set:
 			continue
-		bar = None
-		for bar_name, d_bar in d_bars_dict:
-			if d_bar.is_open(day, time_act):
-				bar = d_bar
-				break
-		if not bar:
-			continue
-		bar_sells = d_sells_dict[bar.name]
+		bar_name = rand_pick(d_bars_time_dict[time_t])
+		bar_sells = d_sells_dict[bar_name]
 		num_bought = rand_int_em(1, len(bar_sells))
 		bought_item_names = set()
 		bought_items = []
 		k = 0
 		while k < num_bought:
 			rand_item = bar_sells[random.randrange(0, len(bar_sells))]
-			if rand_item.name not in bought_item_names:
-				bought_item_names.add(rand_item.name)
+			if rand_item.item not in bought_item_names:
+				bought_item_names.add(rand_item.item)
 				bought_items.append(rand_item)
 				k += 1
 
@@ -548,14 +560,14 @@ def transactions_drinker(drinker, bars, frequents, likes, sells, count_start, co
 		total = round(base_price * 0.07, 2)
 		tip = round(total * (float(random.randint(0, 15))/100.0), 2)
 
-		results.append( (Transaction(count_start+j, bar.name, drinker, day, time_act, tip, total), bought_item_names) )
+		results.append( (Transaction(count_start+j, bar_name, drinker, time_t[0], time_act, tip, total), bought_item_names) )
 
 		time_set.add(time_t)
 		j += 1
 	return results
 
 
-def transactions(drinkers, bars, frequents, likes, sells, count):
+def raw_transactions(drinkers, bars, frequents, likes, sells, count):
 	results = []
 
 	if (len(bars) < 12):
@@ -565,19 +577,23 @@ def transactions(drinkers, bars, frequents, likes, sells, count):
 	if (d_count > 42):
 		raise Exception("Unrealistic transaction count per drinker per week")
 
-	i = 1
-	while True:
-		if i > count:
-			break
 		
-		# for every drinker
-		for drinker in drinkers:
-			
-			transactions_drinker(drinker.name, bars, frequents, likes, sells, i, d_count)
-
-		i += 1
+	# for every drinker
+	count_start = 1
+	for drinker in drinkers:
+		results += transactions_drinker(drinker.name, bars, frequents, likes, sells, count_start, d_count)
+		count_start += d_count
 
 	return results
+
+# test
+# d = drinkers(100)
+# b = bars(100)
+# s = sells(b, items_raw(100), 100)
+# f = frequents(d, b, 100)
+# l = likes(d, s, 100)
+# rt = raw_transactions(d, b, f, l, s, 1000)
+# print(rt[0:10], len(rt))
 
 class Bill:
 	def __init__(self, trans_id, item):
@@ -587,5 +603,30 @@ class Bill:
 	def csv(self):
 		return '"{0}", "{1}"'.format(self.trans_id, self.item)
 
-def bill_contains(sells):
-	pass
+def bill_contains(raw_transactions):
+	bills = []
+	for raw_trans in raw_transactions:
+		trans = raw_trans[0]
+		items_lst = raw_trans[1]
+		for item in items_lst:
+			bills.append(Bill(trans.trans_id, item))
+	return bills
+
+def transactions(raw_transactions):
+	results = []
+	for raw_trans in raw_transactions:
+		results.append(raw_trans[0])
+	return results
+
+
+# test
+d = drinkers(100)
+b = bars(100)
+s = sells(b, items_raw(100), 100)
+f = frequents(d, b, 100)
+l = likes(d, s, 100)
+rt = raw_transactions(d, b, f, l, s, 1000)
+bc = bill_contains(rt)
+t = transactions(rt)
+for tr in t[0:20]:
+	print(tr.csv())
