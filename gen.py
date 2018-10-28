@@ -320,7 +320,7 @@ class Frequent:
 		self.bar = bar
 	
 	def csv(self):
-		return '"{0}", "{1}"'.format(self.drinker, self.bar)
+		return '"{0}","{1}"'.format(self.drinker, self.bar)
 
 def frequents(drinkers, bars, count):
 	results = []
@@ -355,7 +355,7 @@ class Like:
 		self.item = item
 	
 	def csv(self):
-		return '"{0}", "{1}"'.format(self.drinker, self.item)
+		return '"{0}","{1}"'.format(self.drinker, self.item)
 
 def likes(drinkers, items, count):
 	results = []
@@ -382,10 +382,10 @@ class Sell:
 	def __init__(self, bar, item, price):
 		self.bar = bar
 		self.item = item
-		self.price = price
+		self.price = float(price)
 	
 	def csv(self):
-		return '"{0}", "{1}", "{2}"'.format(self.bar, self.item, self.price)
+		return '"{0}","{1}",{2}'.format(self.bar, self.item, self.price)
 
 def sells(bars, raw_items, min_count):
 	results = []

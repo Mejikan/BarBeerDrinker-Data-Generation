@@ -6,6 +6,7 @@ import csv
 f_drinkers = "table/drinkers.csv"
 f_bars = "table/bars.csv"
 f_frequents = "table/frequents.csv"
+f_sells = "table/sells.csv"
 
 def write_drinkers_table():
 	drinkers = gen.drinkers(gen.max_drinkers)
@@ -60,3 +61,24 @@ def write_frequents_table():
 		f.close()
 
 write_frequents_table()
+
+def read_frequents_table():
+	results = []
+	frequents = csv.parse_file(f_frequents, 2500)
+	for freq in frequents:
+		result = gen.Frequent( freq["drinker"], freq["bar"] )
+		results.append(result)
+	return results
+
+# def write_sells_table():
+# 	bars = read_bars_table(True) # squashed for convenience
+# 	items_raw = gen.items_raw(400)
+
+# 	sells = gen.sells(bars, items_raw, 2500)
+# 	f = open(f_sells, "w")
+# 	try:
+# 		f.write('bar,item,price\n')
+# 		for sell in sells:
+# 			f.write(sell.csv() + "\n")
+# 	finally:
+# 		f.close()
