@@ -43,6 +43,7 @@ def parse_file(file_path, max_rec, filtr=None):
 			col_vals = m_split(line)
 			rec = {}
 			for i in range(len(col_names)):
+				#print(i, col_vals, line, col_names)
 				val = col_vals[i].strip()
 				rec[col_names[i]] = val
 				# if (len(val) <= 45):

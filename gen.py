@@ -620,11 +620,11 @@ def transactions(raw_transactions):
 
 
 # test
-d = drinkers(100)
-b = bars(100)
-s = sells(b, items_raw(100), 100)
-f = frequents(d, b, 100)
-l = likes(d, s, 100)
+d = drinkers(130)
+b = bars(130)
+s = sells(b, items_raw(250), 1000)
+f = frequents(d, b, 260)
+l = likes(d, s, 260)
 rt = raw_transactions(d, b, f, l, s, 1000)
 bc = bill_contains(rt)
 t = transactions(rt)
