@@ -282,7 +282,7 @@ def items_raw(count):
 		beer["manu"] = csv.retreive(fpath_brew, int(beer["brewery_id"]))["name"]
 		del beer["brewery_id"]
 		beer["type"] = "beer"
-		price = float(random.randint(1, 12)) + round(random.random(), 2)
+		price = round(float(random.randint(1, 12)) + random.random(), 2)
 		beer["highest_price"] = price
 		beer["lowest_price"] = price
 		results.append(beer)

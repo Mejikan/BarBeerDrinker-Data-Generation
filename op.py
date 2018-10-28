@@ -60,8 +60,6 @@ def write_frequents_table():
 	finally:
 		f.close()
 
-write_frequents_table()
-
 def read_frequents_table():
 	results = []
 	frequents = csv.parse_file(f_frequents, 2500)
@@ -70,15 +68,26 @@ def read_frequents_table():
 		results.append(result)
 	return results
 
-# def write_sells_table():
-# 	bars = read_bars_table(True) # squashed for convenience
-# 	items_raw = gen.items_raw(400)
+def write_sells_table():
+	bars = read_bars_table(True) # squashed for convenience
+	items_raw = gen.items_raw(400)
 
-# 	sells = gen.sells(bars, items_raw, 2500)
-# 	f = open(f_sells, "w")
-# 	try:
-# 		f.write('bar,item,price\n')
-# 		for sell in sells:
-# 			f.write(sell.csv() + "\n")
-# 	finally:
-# 		f.close()
+	sells = gen.sells(bars, items_raw, 2500)
+	f = open(f_sells, "w")
+	try:
+		f.write('bar,item,price\n')
+		for sell in sells:
+			f.write(sell.csv() + "\n")
+	finally:
+		f.close()
+
+def read_sells_table():
+	results = []
+	sells = csv.parse_file(f_sells, 3000)
+	for sell in sells:
+		result = gen.Sell( sell["bar"], sell["item"], sell["price"] )
+		print(result.csv())
+		results.append(result)
+	return results
+
+write_sells_table()
