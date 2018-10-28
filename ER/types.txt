@@ -1,6 +1,6 @@
+drinkers[name varchar(45), city varchar(45), state varchar(45), addr varchar(100), phone int(13)]
+bar[name varchar(45), license varchar(100), city varchar(45), state varchar(45), phone int(11), addr varchar(100), opens time, closes time]
 likes[drinker varchar(45), item varchar(45)]
 items[item_name varchar(45), manufacturer varchar(45)]
 frequents[drinker varchar(45), bar varchar(45)]
-drinkers[name varchar(45), city varchar(45), state varchar(45), addr varchar(100), phone int(13)]
 billContains[trans_id int(11), item varchar(45)]
-bar[name varchar(45), license varchar(100), city varchar(45), state varchar(45), phone int(11), addr varchar(100), opens time, closes time]

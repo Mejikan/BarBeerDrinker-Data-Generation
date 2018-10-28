@@ -69,9 +69,9 @@ class Drinker:
 			self.name, self.city, self.state, self.phone, self.addr)
 	
 	def csv(self):
-		return '"{0}", "{1}", "{2}", "{3}", "{4}"'.format(self.name, self.city, self.state, self.phone, self.addr)
+		return '"{0}","{1}","{2}","{3}","{4}"'.format(self.name, self.city, self.state, self.addr, self.phone)
 
-max_drinkers = 150
+max_drinkers = 1000
 def drinkers(count):
 	# get source data
 	names = source.get_name(fpath_name)
@@ -120,7 +120,7 @@ class Bar:
 			self.name, self.license, self.city, self.state, self.phone, self.addr)
 	
 	def csv(self):
-		return '"{0}", "{1}", "{2}", "{3}", "{4}", "{5}", {6}, {7}, {8}'.format(
+		return '"{0}", "{1}", "{2}", "{3}", "{4}", "{5}", {6}, "{7}", "{8}"'.format(
 			self.name, self.license, self.city, self.state, self.phone, self.addr, self.day, self.open.int_str(), self.closed.int_str())
 
 # generates a random bar time for each day
@@ -184,7 +184,7 @@ def bar_time(state):
 				t += 1
 	return times
 
-max_bars = 146
+max_bars = 218
 def bars(count):
 	# get source data
 	bar_names = source.get_bar(fpath_bars)
@@ -196,6 +196,18 @@ def bars(count):
 
 	lisc_nums = set()
 
+	addr_dict = {} # used to gurauantee at least one bar per state
+	more_addr = []
+	for addr in addrs:
+		if addr.state not in addr_dict:
+			addr_dict[addr.state] = addr
+		else:
+			more_addr.append(addr)
+	
+	addr_dict_list = list(addr_dict.values())
+	if (len(addr_dict_list)) < 50:
+		print("warning - not guraunteed bar for each state, length is: " + str(len(addr_dict_list)))
+
 	# generate
 	results = []
 	for n in range(count):
@@ -204,11 +216,18 @@ def bars(count):
 		while lisc_num in lisc_nums:
 			lisc_num = random.randint(10000, 99999)
 		lisc_nums.add(lisc_num)
-		lisc = addrs[n].state + str(lisc_num)
 
-		hours = bar_time(addrs[n].state)
+		addr = None
+		if n < len(addr_dict_list):
+			addr = addr_dict_list[n]
+		else:
+			addr = more_addr[n - len(addr_dict_list)]
+
+		lisc = addr.state + str(lisc_num)
+
+		hours = bar_time(addr.state)
 		for d in range(len(hours)):
-			results.append(Bar(bar_names[n], lisc, addrs[n].city, addrs[n].state, phones[n], addrs[n].street,
+			results.append(Bar(bar_names[n], lisc, addr.city, addr.state, phones[n], addr.street,
 				d+1, Time(hours[d][0]), Time(hours[d][1])))
 	return results
 
@@ -620,13 +639,13 @@ def transactions(raw_transactions):
 
 
 # test
-d = drinkers(130)
-b = bars(130)
-s = sells(b, items_raw(250), 1000)
-f = frequents(d, b, 260)
-l = likes(d, s, 260)
-rt = raw_transactions(d, b, f, l, s, 1000)
-bc = bill_contains(rt)
-t = transactions(rt)
-for tr in t[0:20]:
-	print(tr.csv())
+# d = drinkers(130)
+# b = bars(130)
+# s = sells(b, items_raw(250), 1000)
+# f = frequents(d, b, 260)
+# l = likes(d, s, 260)
+# rt = raw_transactions(d, b, f, l, s, 1000)
+# bc = bill_contains(rt)
+# t = transactions(rt)
+# for tr in t[0:20]:
+# 	print(tr.csv())
