@@ -121,7 +121,7 @@ def write_transactions_table():
 	likes = read_likes_table()
 	sells = read_sells_table()
 
-	rt = gen.raw_transactions(drinkers, bars, frequents, likes, sells, 5000)
+	rt = gen.raw_transactions(drinkers, bars, frequents, likes, sells, 20000)
 
 	transactions = gen.transactions(rt)
 	f = open(f_transactions, "w")
