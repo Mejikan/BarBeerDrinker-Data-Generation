@@ -1,3 +1,3 @@
 use BarBeerDrinker;
 
-SELECT * from bars
+SELECT * from frequents

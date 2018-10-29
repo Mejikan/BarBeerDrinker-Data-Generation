@@ -6,6 +6,7 @@ import csv
 f_drinkers = "table/drinkers.csv"
 f_bars = "table/bars.csv"
 f_frequents = "table/frequents.csv"
+f_items = "table/items.csv"
 f_sells = "table/sells.csv"
 f_likes = "table/likes.csv"
 f_transactions = "table/transactions.csv"
@@ -74,6 +75,15 @@ def read_frequents_table():
 def write_sells_table():
 	bars = read_bars_table(True) # squashed for convenience
 	items_raw = gen.items_raw(400)
+
+	items = gen.items(items_raw)
+	f = open(f_items, "w")
+	try:
+		f.write('item_name,manufacturer,item_type\n')
+		for item in items:
+			f.write(item.csv() + "\n")
+	finally:
+		f.close()
 
 	sells = gen.sells(bars, items_raw, 2500)
 	f = open(f_sells, "w")
@@ -144,7 +154,7 @@ def write_transactions_table():
 #write_drinkers_table()
 #write_bars_table()
 #write_frequents_table()
-#write_sells_table()
 
+#write_sells_table()
 #write_likes_table()
-#write_transactions_table()
+write_transactions_table()

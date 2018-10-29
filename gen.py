@@ -290,15 +290,13 @@ def items_raw(count):
 	return results
 
 class Item:
-	def __init__(self, name, item_type, manu=None):
+	def __init__(self, name, item_type, manu=""):
 		self.name = name
 		self.type = item_type
 		self.manu = manu
 	
 	def csv(self):
-		result = '"{0}", "{1}"'.format(self.name, self.type)
-		if self.manu:
-			result += ', "{0}"'.format(self.manu)
+		result = '"{0}","{1}","{2}"'.format(self.name, self.manu, self.type)
 		return result
 
 def items(raw_items):
