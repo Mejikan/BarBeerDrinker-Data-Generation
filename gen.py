@@ -44,22 +44,23 @@ class Time:
 		else:
 			result += str(self.hour)
 		if self.min < 10:
-			result += "0" + str(self.min)
+			result += ":0" + str(self.min)
 		else:
-			result += str(self.min)
+			result += ":" + str(self.min)
 		if self.sec < 10:
-			result += "0" + str(self.sec)
+			result += ":0" + str(self.sec)
 		else:
-			result += str(self.sec)
+			result += ":" + str(self.sec)
 		return result
 	
 	def int_rep(self):
 		return int(self.int_str())
 
 def time_from_int_str(int_str):
-	hour = int(int_str[0:2])
-	minute = int(int_str[2:4])
-	sec = int(int_str[4:6])
+	time_t = int_str.split(":")
+	hour = int(time_t[0].strip())
+	minute = int(time_t[1].strip())
+	sec = int(time_t[2].strip())
 	return Time(hour, minute, sec)
 
 class Drinker:
@@ -126,7 +127,7 @@ class Bar:
 			self.name, self.license, self.city, self.state, self.phone, self.addr)
 	
 	def csv(self):
-		return '"{0}", "{1}", "{2}", "{3}", "{4}", "{5}", {6}, "{7}", "{8}"'.format(
+		return '"{0}", "{1}", "{2}", "{3}", "{4}", "{5}", {6}, {7}, {8}'.format(
 			self.name, self.license, self.city, self.state, self.phone, self.addr, self.day, self.open.int_str(), self.closed.int_str())
 
 # generates a random bar time for each day
@@ -527,7 +528,7 @@ class Transaction:
 		self.total = total
 	
 	def csv(self):
-		return '{0},{1},"{2}","{3}","{4}",{5},{6}'.format(
+		return '{0},{1},{2},"{3}","{4}",{5},{6}'.format(
 			self.trans_id, self.day, self.time.int_str(), self.bar, self.drinker, self.tip, self.total)
 
 # creates transactions for a single drinker
