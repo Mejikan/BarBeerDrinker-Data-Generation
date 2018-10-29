@@ -157,4 +157,4 @@ def write_transactions_table():
 
 #write_sells_table()
 #write_likes_table()
-write_transactions_table()
+#write_transactions_table()
