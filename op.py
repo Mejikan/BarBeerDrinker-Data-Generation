@@ -8,6 +8,8 @@ f_bars = "table/bars.csv"
 f_frequents = "table/frequents.csv"
 f_sells = "table/sells.csv"
 f_likes = "table/likes.csv"
+f_transactions = "table/transactions.csv"
+f_bill_contains = "table/bill_contains.csv"
 
 def write_drinkers_table():
 	drinkers = gen.drinkers(gen.max_drinkers)
@@ -109,7 +111,34 @@ def read_likes_table():
 	likes = csv.parse_file(f_likes, 10000)
 	for like in likes:
 		result = gen.Like( like["drinker"], like["item"] )
-		print(result.csv())
 		results.append(result)
 	return results
 
+def write_transactions_table():
+	drinkers = read_drinkers_table()
+	bars = read_bars_table()
+	frequents = read_frequents_table()
+	likes = read_likes_table()
+	sells = read_sells_table()
+
+	rt = gen.raw_transactions(drinkers, bars, frequents, likes, sells, 5000)
+
+	transactions = gen.transactions(rt)
+	f = open(f_transactions, "w")
+	try:
+		f.write('trans_id,day,time,bar,drinker,tip,total\n')
+		for trans in transactions:
+			f.write(trans.csv() + "\n")
+	finally:
+		f.close()
+
+	bills = gen.bill_contains(rt)
+	f = open(f_bill_contains, "w")
+	try:
+		f.write('trans_id,item\n')
+		for bill in bills:
+			f.write(bill.csv() + "\n")
+	finally:
+		f.close()
+
+write_transactions_table()

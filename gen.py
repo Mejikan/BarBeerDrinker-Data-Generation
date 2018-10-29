@@ -527,7 +527,7 @@ class Transaction:
 		self.total = total
 	
 	def csv(self):
-		return '"{0}", {1}, {2}, "{3}", "{4}", {5}, {6}'.format(
+		return '{0},{1},"{2}","{3}","{4}",{5},{6}'.format(
 			self.trans_id, self.day, self.time.int_str(), self.bar, self.drinker, self.tip, self.total)
 
 # creates transactions for a single drinker
@@ -540,8 +540,8 @@ def transactions_drinker(drinker, bars, frequents, likes, sells, count_start, co
 		if frequent.drinker == drinker:
 			d_bars.add(frequent.bar)
 	
-	# everyone should visit at least 2 bars
-	if (len(d_bars) < 2):
+	# everyone should visit at least 3 bars
+	if (len(d_bars) < 3):
 		add_bars = random.randint(2, 8)
 		n = 0
 		while n < add_bars:
@@ -549,51 +549,49 @@ def transactions_drinker(drinker, bars, frequents, likes, sells, count_start, co
 			if bar not in d_bars:
 				d_bars.add(bar.name)
 				n += 1
-	
-	# create a list of liked items
-	d_likes = set()
-	for like in likes:
-		if like.drinker == drinker:
-			d_likes.add(like.item)
-	
-	# create a dictionary of bar data
+
 	d_bars_dict = {}
-	d_bars_time_dict = {}
 	d_sells_dict = {}
+
 	for bar_name in d_bars:
 		for bar_i in range(len(bars)):
 			bar = bars[bar_i]
 			if bar.name == bar_name:
-				d_bars_dict[bar_name] = bar
+				if bar_name not in d_bars_dict:
+					d_bars_dict[bar_name] = {}
+				d_bars_dict[bar_name][bar.day] = bar
 
-				# create a dictionary of bar times
-				for bar_time_day in range(1, 8):
-					for bar_time_hour in range(bar.open.hour, bar.closed.hour):
-						bar_time_t = (bar_time_day, bar_time_hour)
-						if bar_time_t not in d_bars_time_dict:
-							d_bars_time_dict[bar_time_t] = []
-						d_bars_time_dict[bar_time_t].append(bar_name)
 
-				# create a dictionary of sell data
-				for sell in sells:
-					if sell.bar == bar_name:
-						if bar_name not in d_sells_dict:
-							d_sells_dict[bar_name] = []
-						d_sells_dict[bar_name].append(sell)
-				break
-			if bar_i == len(bars)-1:
-				print("not found: ", bar_name)
+	# create a dictionary of sell data
+	for sell in sells:
+		if sell.bar in d_bars:
+			bar_name = sell.bar
+			if bar_name not in d_sells_dict:
+				d_sells_dict[bar_name] = []
+			d_sells_dict[bar_name].append(sell)
 
 	time_set = set()
 
 	j = 0
 	while (j < count):
-		# pick a random day+time from available bar times
-		time_t = random.choice(list(d_bars_time_dict))
-		time_act = Time(time_t[1], random.randint(5, 55), random.randint(0, 59))
+
+		# pick a random bar
+		bar_name = rand_pick(list(d_bars_dict.keys())) # should return bar name
+		bar_inst = d_bars_dict[bar_name] # dict of 7 instances
+		bar_time_day = rand_pick(list(bar_inst.keys())) # return a 1-7 int for a day
+		bar_day_inst = bar_inst[bar_time_day] # a single bar instance for a day
+		if bar_day_inst.closed.hour < bar_day_inst.open.hour:
+			bar_time_hour = random.randrange(bar_day_inst.open.hour, bar_day_inst.closed.hour+24) # pick random hour
+		else:
+			bar_time_hour = random.randrange(bar_day_inst.open.hour, bar_day_inst.closed.hour) # pick random hour
+		if bar_time_hour > 23:
+			bar_time_hour -= 24
+		
+		time_t = (bar_time_day, bar_time_hour)
+		time_act = Time(bar_time_hour, random.randint(5, 55), random.randint(0, 59))
 		if time_t in time_set:
 			continue
-		bar_name = rand_pick(d_bars_time_dict[time_t])
+
 		bar_sells = d_sells_dict[bar_name]
 		num_bought = rand_int_em(1, len(bar_sells))
 		bought_item_names = set()
@@ -610,10 +608,10 @@ def transactions_drinker(drinker, bars, frequents, likes, sells, count_start, co
 		base_price = 0
 		for bought_item in bought_items:
 			base_price += bought_item.price
-		total = round(base_price * 0.07, 2)
+		total = round(base_price * 1.07, 2)
 		tip = round(total * (float(random.randint(0, 15))/100.0), 2)
 
-		results.append( (Transaction(count_start+j, bar_name, drinker, time_t[0], time_act, tip, total), bought_item_names) )
+		results.append( (Transaction(count_start+j, bar_name, drinker, bar_time_day, time_act, tip, total), bought_item_names) )
 
 		time_set.add(time_t)
 		j += 1
@@ -635,6 +633,7 @@ def raw_transactions(drinkers, bars, frequents, likes, sells, count):
 	count_start = 1
 	for drinker in drinkers:
 		results += transactions_drinker(drinker.name, bars, frequents, likes, sells, count_start, d_count)
+		print("generated transactions: ", count_start-1, count_start+d_count-1) #debug
 		count_start += d_count
 
 	return results
@@ -654,7 +653,7 @@ class Bill:
 		self.item = item
 	
 	def csv(self):
-		return '"{0}", "{1}"'.format(self.trans_id, self.item)
+		return '{0},"{1}"'.format(self.trans_id, self.item)
 
 def bill_contains(raw_transactions):
 	bills = []
