@@ -1,12 +1,10 @@
-use BarBeerDrinker;
-
-#Detecting transactions after hours
+﻿#Detecting transactions after hours
 SELECT t.trans_id 
 FROM BarBeerDrinker.transaction t
 WHERE EXISTS 
         (SELECT b.name 
     FROM BarBeerDrinker.bars b
-        WHERE b.name = t.bar & t.time < b.opens & t.time > b.closes);
+        WHERE b.name = t.bar & t.time < b.opens & t.time > b.closes)
 
 
 #Detecting drinkers frequenting out of state

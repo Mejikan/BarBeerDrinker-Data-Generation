@@ -1,4 +1,4 @@
-name,license,city,state,phone,addr,day,open,closed
+name,license,city,state,phone,addr,day,opens,closes
 "Opus Mainstreet", "NJ59532", "South Plainfield", "NJ", "4646051398", "8611 Cobblestone Avenue", 1, 09:00:00, 13:00:00
 "Opus Mainstreet", "NJ59532", "South Plainfield", "NJ", "4646051398", "8611 Cobblestone Avenue", 2, 09:00:00, 13:00:00
 "Opus Mainstreet", "NJ59532", "South Plainfield", "NJ", "4646051398", "8611 Cobblestone Avenue", 3, 09:00:00, 13:00:00
