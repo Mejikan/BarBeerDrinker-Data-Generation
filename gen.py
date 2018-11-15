@@ -529,6 +529,20 @@ class Transaction:
 		return '{0},{1},{2},"{3}","{4}",{5},{6}'.format(
 			self.trans_id, self.day, self.time.int_str(), self.bar, self.drinker, self.tip, self.total)
 
+class ChronoTransaction:
+	def __init__(self, trans_id, bar, drinker, date, day, time, tip=0, total=0):
+		self.trans_id = trans_id
+		self.date = date
+		self.day = day
+		self.time = time
+		self.bar = bar
+		self.drinker = drinker
+		self.tip = tip
+		self.total = total
+	def csv(self):
+		return '{0},{1},{2},"{3}","{4}","{5}",{6},{7}'.format(
+			self.trans_id, self.day, self.time.int_str(), self.date, self.bar, self.drinker, self.tip, self.total)
+
 # creates transactions for a single drinker
 def transactions_drinker(drinker, bars, frequents, likes, sells, count_start, count):
 	results = []

@@ -2,6 +2,7 @@
 
 import gen
 import csv
+import date_transactions as dt
 
 f_drinkers = "table/drinkers.csv"
 f_bars = "table/bars.csv"
@@ -10,6 +11,7 @@ f_items = "table/items.csv"
 f_sells = "table/sells.csv"
 f_likes = "table/likes.csv"
 f_transactions = "table/transactions.csv"
+f_transactions2 = "table/transactions2.csv"
 f_bill_contains = "table/bill_contains.csv"
 
 def write_drinkers_table():
@@ -151,6 +153,33 @@ def write_transactions_table():
 	finally:
 		f.close()
 
+def read_transactions_table():
+	results = []
+	transactions = csv.parse_file(f_transactions, 20000)
+	for trans in transactions:
+		result = gen.Transaction( trans["trans_id"], trans["bar"], trans["drinker"], int(trans["day"]), gen.time_from_int_str(trans["time"]), float(trans["tip"]), float(trans["total"]) )
+		results.append(result)
+	return results
+
+# transaction stuff
+def write_transactions_date():
+	results = []
+	transactions = read_transactions_table()
+	for trans in transactions:
+		date = dt.rand_date(trans.day)
+		date = date.replace(hour=trans.time.hour, minute=trans.time.min, second=trans.time.sec)
+		results.append(gen.ChronoTransaction( trans.trans_id, trans.bar, trans.drinker, date, trans.day, trans.time, trans.tip, trans.total ))
+
+	transactions = results
+
+	f = open(f_transactions2, "w")
+	try:
+		f.write('trans_id,day,time,date,bar,drinker,tip,total\n')
+		for trans in transactions:
+			f.write(trans.csv() + "\n")
+	finally:
+		f.close()
+
 #write_drinkers_table()
 #write_bars_table()
 #write_frequents_table()
@@ -158,3 +187,6 @@ def write_transactions_table():
 #write_sells_table()
 #write_likes_table()
 #write_transactions_table()
+
+write_transactions_date()
+
