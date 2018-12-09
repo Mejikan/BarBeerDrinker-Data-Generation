@@ -1,7 +1,9 @@
 # BarBeerDrinker
 ### Class Project
 
-This repository contains the code which generates renadom data as well as the SQL queries, triggers, and constraints used.
+This repository contains the code which generates random data as well as the SQL queries, triggers, and constraints used.
+Over 20,000 tuples of semi-realistic data is generated, making sure to fit certain constraints. Most of the seed data is
+scraped from the internet.
 
 * datagen
 	* datagen/data - contains all the source data for generation
