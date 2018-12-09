@@ -2,11 +2,11 @@ BarBeerDrinkersPlus Schema
 Lawrence Yong, Kevin Toft
 
 Bars [name, license, city, state, phone addr]
-Items [name manu]
+Items [item_name, manufacturer, item_type]
 Drinkers [name, city, state, phone, addr]
 Frequents [drinker, bar]
-like [drinker, item]
+Likes [drinker, item]
 Sells [bar, item, price]
-Hours [bar, day, open, close]
-Transaction[TransID, time, day, bar, drinker, tip, total]
-BillContains[TransID, item]
+Hours [bar, day, opens, closes]
+Transactions[trans_id, date, bar, drinker, tip, total]
+BillContains[trans_id, item]
